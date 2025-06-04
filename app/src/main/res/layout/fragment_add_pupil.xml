@@ -1,0 +1,57 @@
+<!-- res/layout/fragment_add_pupil.xml -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
+
+        <!-- Image Preview and Select Button -->
+        <ImageView
+            android:id="@+id/imageViewProfile"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Profile picture"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/ic_placeholder" />
+
+        <Button
+            android:id="@+id/btnSelectImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Select Pupil Image" />
+
+        <!-- Input Fields -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:inputType="textPersonName" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextCountry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Country"
+            android:inputType="text" />
+
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Submit" />
+
+    </LinearLayout>
+</ScrollView>
