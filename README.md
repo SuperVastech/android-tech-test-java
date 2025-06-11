@@ -6,6 +6,10 @@ For details about my solution to the case study, including setup instructions, f
 
 # Android Technical Test
 
+**Note (Oke Oluwaseun Michael):**  
+For details about my solution to the case study, including setup instructions, features implemented, and assumptions, please see [MY_README.md](./MY_README.md).
+
+
 ## Objective
 
 Below are a set of requirements from a business owner within Bridge International Academies, relating to a need to be able to administer pupil information from a mobile application.  The basic framework of the application already exists, but needs to be extended with the some or all of the given requirements.
