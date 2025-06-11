@@ -1,5 +1,9 @@
 ![Bridge International Academies Logo](BannerLogo280x60.png)
 
+**Note (Oke Oluwaseun Michael):**  
+For details about my solution to the case study, including setup instructions, features implemented, and assumptions, please see [MY_README.md](./MY_README.md).
+
+
 # Android Technical Test
 
 ## Objective
