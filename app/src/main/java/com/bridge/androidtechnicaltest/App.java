@@ -21,7 +21,7 @@ public class App extends Application implements Configuration.Provider {
     private SyncPupilsWorkerFactory workerFactory;
 
     @Inject
-    PupilRepository pupilRepository;  // Injected by Dagger
+    PupilRepository pupilRepository;
 
     @Override
     public void onCreate() {
@@ -31,9 +31,8 @@ public class App extends Application implements Configuration.Provider {
                 .applicationModule(new ApplicationModule(this))
                 .build();
 
-        applicationComponent.inject(this);  // Inject dependencies (including pupilRepository)
+        applicationComponent.inject(this);
 
-        // Initialize the WorkerFactory with the injected repository
         workerFactory = new SyncPupilsWorkerFactory(pupilRepository);
     }
 

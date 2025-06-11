@@ -27,7 +27,7 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    PupilRepository providePupilRepository(AppDatabase db, PupilService service) {
+    PupilRepository providePupilRepository(AppDatabase db, PupilService service, Context context) {
         return new PupilRepository(db, service);
     }
 

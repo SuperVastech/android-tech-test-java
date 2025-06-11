@@ -18,9 +18,11 @@ public class PupilViewModelFactory implements ViewModelProvider.Factory {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+
         if (modelClass.isAssignableFrom(PupilViewModel.class)) {
             return (T) new PupilViewModel(repository);
         }
+
         throw new IllegalArgumentException("Unknown ViewModel class");
     }
 }

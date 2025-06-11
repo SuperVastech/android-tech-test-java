@@ -17,14 +17,9 @@ public abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(PupilViewModel.class) // Replace with your actual ViewModel class
+    @ViewModelKey(PupilViewModel.class)
     abstract ViewModel bindPupilListViewModel(PupilViewModel viewModel);
 
-    // Bind other ViewModels here similarly
-    // @Binds
-    // @IntoMap
-    // @ViewModelKey(OtherViewModel.class)
-    // abstract ViewModel bindOtherViewModel(OtherViewModel viewModel);
 
     @Binds
     abstract ViewModelProvider.Factory bindViewModelFactory(ViewModelFactory factory);

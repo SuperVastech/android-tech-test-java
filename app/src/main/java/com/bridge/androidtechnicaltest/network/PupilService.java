@@ -1,7 +1,6 @@
 package com.bridge.androidtechnicaltest.network;
 
 import com.bridge.androidtechnicaltest.db.Pupil;
-import com.bridge.androidtechnicaltest.db.PupilList;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ import retrofit2.http.Query;
 
 public interface PupilService {
     @GET("pupils")
-    Single<List<Pupil>> getAllPupils(
+    Single<PupilResponse> getAllPupils(
             @Query("page") int page,
             @Header("X-Request-ID") String requestId,
             @Header("User-Agent") String userAgent
@@ -33,7 +32,7 @@ public interface PupilService {
 
     @POST("pupils")
     Completable addPupil(
-            @Body Pupil pupil,
+            @Body PupilRequest pupilRequest,
             @Header("X-Request-ID") String requestId,
             @Header("User-Agent") String userAgent
     );

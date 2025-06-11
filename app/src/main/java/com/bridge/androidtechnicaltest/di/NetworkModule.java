@@ -16,6 +16,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -33,25 +34,27 @@ public class NetworkModule {
     @Provides
     @Singleton
     OkHttpClient provideOkhttpClient() {
-
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.readTimeout(API_TIMEOUT, TimeUnit.SECONDS);
         builder.writeTimeout(API_TIMEOUT, TimeUnit.SECONDS);
         builder.connectTimeout(API_TIMEOUT, TimeUnit.SECONDS);
 
-        Interceptor requestInterceptor = new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request originalRequest = chain.request();
-                Request newRequest = originalRequest.newBuilder()
-                        .build();
-                return  chain.proceed(newRequest);
-            }
-        };
-        builder.addInterceptor(requestInterceptor);
+        // request interceptor if needed
+        builder.addInterceptor(chain -> {
+            Request originalRequest = chain.request();
+            Request newRequest = originalRequest.newBuilder()
+                    .build();
+            return chain.proceed(newRequest);
+        });
+
+        // ✅ Add logging interceptor
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        builder.addInterceptor(loggingInterceptor);
 
         return builder.build();
     }
+
 
     @Provides
     @Singleton

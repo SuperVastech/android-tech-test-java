@@ -21,7 +21,16 @@ public class PupilAdapter extends RecyclerView.Adapter<PupilAdapter.PupilViewHol
 
     private List<Pupil> pupils;
     private Context context;
+    private OnPupilClickListener listener;
 
+    public interface OnPupilClickListener {
+        void onPupilClick(Pupil pupil);
+        void onDeleteClick(Pupil pupil);
+    }
+
+    public PupilAdapter(OnPupilClickListener listener) {
+        this.listener = listener;
+    }
 
     public void setPupils(List<Pupil> pupils) {
         this.pupils = pupils;
@@ -42,12 +51,21 @@ public class PupilAdapter extends RecyclerView.Adapter<PupilAdapter.PupilViewHol
         holder.textPupilName.setText(pupil.getName());
         holder.textPupilCountry.setText(pupil.getCountry());
 
-        // Load image using the utility class
-        ImageLoader.loadCircularImage(
-                context,
-                pupil.getImage(),
-                holder.imagePupil
-        );
+
+        ImageLoader.loadCircularImage(holder.itemView.getContext(), pupil.getImage(), holder.imagePupil);
+
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onPupilClick(pupil);
+            }
+        });
+
+        holder.imageDelete.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteClick(pupil);
+            }
+        });
     }
 
     @Override
@@ -59,12 +77,17 @@ public class PupilAdapter extends RecyclerView.Adapter<PupilAdapter.PupilViewHol
         TextView textPupilName;
         TextView textPupilCountry;
         ImageView imagePupil;
+        ImageView imageDelete;
 
         PupilViewHolder(View itemView) {
             super(itemView);
             textPupilName = itemView.findViewById(R.id.textPupilName);
+
             textPupilCountry = itemView.findViewById(R.id.textPupilCountry);
+
             imagePupil = itemView.findViewById(R.id.imagePupil);
+
+            imageDelete = itemView.findViewById(R.id.imageDelete);
         }
     }
 }

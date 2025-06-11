@@ -2,14 +2,109 @@
 <androidx.constraintlayout.widget.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/linearLayout"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	tools:context=".ui.PupilListFragment">
+
+	<LinearLayout
+		android:id="@+id/topContainer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:layout_marginStart="16dp"
+		android:layout_marginEnd="16dp"
+		android:orientation="horizontal"
+		android:gravity="center_vertical"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent">
+
+		<TextView
+			android:id="@+id/textViewPageNumber"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Page 1"
+			android:textSize="16sp"
+			android:textStyle="bold"
+			android:gravity="center" />
+
+		<Button
+			android:id="@+id/buttonPublish"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Publish"
+			android:textColor="@color/white"
+			android:textStyle="bold"
+			android:textSize="12sp"
+			android:backgroundTint="@android:color/holo_red_dark"
+			android:visibility="gone"
+			style="@style/Widget.Material3.Button.TonalButton" />
+
+
+
+	</LinearLayout>
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/pupil_list"
 		android:layout_width="0dp"
 		android:layout_height="0dp"
+		android:layout_marginStart="16dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="8dp"
+		app:layout_constraintBottom_toTopOf="@+id/paginationContainer"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/topContainer" />
+
+	<LinearLayout
+		android:id="@+id/paginationContainer"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_margin="16dp"
+		android:orientation="horizontal"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent">
+
+		<Button
+			android:id="@+id/buttonPrevious"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:layout_marginEnd="8dp"
+			android:text="Previous"
+			android:enabled="false" />
+
+		<Button
+			android:id="@+id/buttonNext"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:layout_marginStart="8dp"
+			android:text="Next" />
+
+	</LinearLayout>
+
+
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+		android:id="@+id/fabAddPupil"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="16dp"
+		android:layout_marginBottom="80dp"
+		android:src="@android:drawable/ic_input_add"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent" />
+
+	<ProgressBar
+		android:id="@+id/progressBar"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

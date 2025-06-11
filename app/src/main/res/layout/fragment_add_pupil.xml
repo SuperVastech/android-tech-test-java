@@ -1,57 +1,122 @@
-<!-- res/layout/fragment_add_pupil.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:padding="24dp">
 
-        <!-- Image Preview and Select Button -->
-        <ImageView
-            android:id="@+id/imageViewProfile"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:contentDescription="Profile picture"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/ic_placeholder" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add New Pupil"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            android:layout_marginBottom="24dp" />
 
-        <Button
-            android:id="@+id/btnSelectImage"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <ImageView
+                android:id="@+id/imageViewProfile"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/circle_background"
+                android:scaleType="centerCrop"
+                android:src="@drawable/user_sample"
+                android:contentDescription="Profile picture" />
+
+            <Button
+                android:id="@+id/btnSelectImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Image"
+                android:drawableStart="@android:drawable/ic_menu_camera"
+                android:drawablePadding="8dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Select Pupil Image" />
+            android:hint="Pupil Name"
+            app:startIconDrawable="@android:drawable/ic_menu_edit"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        <!-- Input Fields -->
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextName"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:maxLines="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
-            android:inputType="textPersonName" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextCountry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
             android:hint="Country"
-            android:inputType="text" />
+            app:startIconDrawable="@android:drawable/ic_dialog_map"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextCountry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/info_background"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_dialog_info"
+                android:layout_marginEnd="8dp"
+                app:tint="?attr/colorPrimary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location will be automatically detected"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
+            android:text="Add Pupil"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:layout_marginTop="16dp"
-            android:text="Submit" />
+            style="@style/Widget.MaterialComponents.Button" />
 
     </LinearLayout>
+
 </ScrollView>

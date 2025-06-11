@@ -20,12 +20,14 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public AppDatabase provideLocalGameDatabase(Context applicationContext) {
-        return Room.databaseBuilder(applicationContext, AppDatabase.class, APP_DATABASE).build();
+    public AppDatabase provideAppDatabase(Context applicationContext) {
+        return Room.databaseBuilder(applicationContext, AppDatabase.class, APP_DATABASE)
+                .fallbackToDestructiveMigration()
+                .build();
     }
 
     @Provides
-    public PupilDao providePupilDao(AppDatabase localGameDatabase) {
-        return localGameDatabase.getPupilDao();
+    public PupilDao providePupilDao(AppDatabase appDatabase) {
+        return appDatabase.getPupilDao();
     }
 }

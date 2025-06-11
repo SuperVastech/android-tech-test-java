@@ -3,6 +3,7 @@ package com.bridge.androidtechnicaltest.db;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "Pupils")
@@ -29,6 +30,9 @@ public class Pupil {
     @ColumnInfo(name = "is_synced")
     public boolean isSynced;
 
+    @ColumnInfo(name = "created_at")
+    private long createdAt;
+
 
     public Pupil(int pupilId, String name, String country, String image, Double latitude, Double longitude) {
         this.pupilId = pupilId;
@@ -38,7 +42,20 @@ public class Pupil {
         this.latitude = latitude;
         this.longitude = longitude;
         this.isSynced = false;
+        this.createdAt = System.currentTimeMillis();
+    }
 
+    // for new pupils (without ID)
+    @Ignore
+    public Pupil(String name, String country, String image, Double latitude, Double longitude) {
+        this.pupilId = 0;
+        this.name = name;
+        this.country = country;
+        this.image = image;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.isSynced = false;
+        this.createdAt = System.currentTimeMillis();
     }
 
     public int getPupilId() {
@@ -95,6 +112,14 @@ public class Pupil {
 
     public void setSynced(boolean synced) {
         isSynced = synced;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override

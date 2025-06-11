@@ -26,7 +26,8 @@ public class SyncPupilsWorkerFactory extends WorkerFactory {
         if (workerClassName.equals(SyncPupilsWorker.class.getName())) {
             return new SyncPupilsWorker(context, workerParameters, pupilRepository);
         }
-        // fallback to default for other workers
+
+
         return null;
     }
 }

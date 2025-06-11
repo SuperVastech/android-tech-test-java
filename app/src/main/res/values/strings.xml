@@ -1,12 +1,34 @@
 <resources>
     <string name="app_name">Android Technical Test</string>
 
+
     <string name="pupil_detail_id">Id</string>
     <string name="pupil_detail_name">Name</string>
     <string name="pupil_detail_country">Country</string>
     <string name="reset">Reset</string>
     <string name="data_reset">Api Data Reset</string>
     <string name="data_reset_failed">Data Reset Failed</string>
+    <string name="no_pupils_found">No pupils found</string>
+    <string name="error_loading_pupils">Error loading pupils</string>
+    <string name="add_pupil">Add Pupil</string>
+    <string name="sync_pupils">Sync Pupils</string>
+    <string name="pupil_name">Pupil Name</string>
+    <string name="country">Country</string>
+    <string name="select_image">Select Image</string>
+    <string name="submit_pupil">Add Pupil</string>
+    <string name="fill_all_fields">Please fill all fields and select an image</string>
+    <string name="pupil_submitted">Pupil submitted!</string>
+    <string name="location_auto_detect">Location will be automatically detected</string>
+    <string name="failed_to_load_image">Failed to load image</string>
+    <string name="location_permission_denied">Location permission denied. Using default location.</string>
+    <string name="name_label">Name</string>
+    <string name="country_label">Country</string>
+    <string name="location_label">Location</string>
+    <string name="latitude_label">Latitude</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pupil_photo">Pupil photo</string>
+    <string name="back">Back</string>
 </resources>
+

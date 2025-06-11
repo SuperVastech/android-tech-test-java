@@ -1,5 +1,7 @@
 package com.bridge.androidtechnicaltest.db;
 
+import com.bridge.androidtechnicaltest.network.PupilRequest;
+import com.bridge.androidtechnicaltest.network.PupilResponse;
 import com.bridge.androidtechnicaltest.network.PupilService;
 import com.bridge.androidtechnicaltest.network.RequestHeaderHelper;
 
@@ -38,31 +40,71 @@ public class PupilRepository implements IPupilRepository {
         return RequestHeaderHelper.getUserAgent();
     }
 
+    @Override
     public Single<List<Pupil>> getLocalPupils() {
         return pupilDao.getPupils().subscribeOn(Schedulers.io());
     }
 
+    @Override
     public Completable syncPupilsFromRemote(int page) {
         return pupilService.getAllPupils(page, requestId(), userAgent())
                 .subscribeOn(Schedulers.io())
-                .flatMapCompletable(remotePupils -> Completable.fromAction(() -> {
-                    for (Pupil p : remotePupils) p.isSynced = true;
-                    pupilDao.insertAll(remotePupils);
+                .flatMapCompletable(response -> Completable.fromAction(() -> {
+                    List<Pupil> remotePupils = response.getItems();
+                    if (remotePupils != null) {
+                        for (Pupil p : remotePupils) {
+                            p.setSynced(true);
+                        }
+                        pupilDao.insertAll(remotePupils);
+                    }
                 }));
     }
 
+    @Override
+    public Completable clearAndSyncFromRemote() {
+        return Completable.fromAction(() -> {
+            pupilDao.clearSyncedPupils();
+        }).andThen(
+                syncPupilsFromRemote(1)
+                        .andThen(syncPupilsFromRemote(2))
+                        .andThen(syncPupilsFromRemote(3))
+                        .andThen(syncPupilsFromRemote(4))
+                        .andThen(syncPupilsFromRemote(5))
+        ).subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public Completable loadMorePupils(int page) {
+        return syncPupilsFromRemote(page);
+    }
+
+    @Override
     public Completable syncUnsyncedPupils() {
         return pupilDao.getUnsyncedPupils()
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapCompletable(pupil ->
-                        pupilService.addPupil(pupil, requestId(), userAgent())
-                                .andThen(Completable.fromAction(() -> {
-                                    pupil.isSynced = true;
-                                    pupilDao.insertPupil(pupil);
-                                }))
-                ).subscribeOn(Schedulers.io());
+                .flatMapCompletable(pupil -> {
+                    PupilRequest request = new PupilRequest(pupil);
+                    return pupilService.addPupil(request, requestId(), userAgent())
+                            .andThen(Completable.fromAction(() -> {
+                                pupil.setSynced(true);
+                                pupilDao.insertPupil(pupil);
+                            }))
+                            .doOnError(throwable -> {
+                                android.util.Log.e("PupilRepository", "Failed to sync pupil: " + pupil.getName() +
+                                        ", Error: " + throwable.getMessage());
+                            })
+                            .onErrorComplete();
+                }).subscribeOn(Schedulers.io());
     }
 
+    // Method to clear problematic unsynced pupils if needed
+    public Completable clearUnsyncedPupils() {
+        return Completable.fromAction(() -> {
+            pupilDao.deleteUnsyncedPupils();
+        }).subscribeOn(Schedulers.io());
+    }
+
+    @Override
     public Single<Pupil> getPupilById(int id) {
         return pupilDao.getPupilById(id)
                 .subscribeOn(Schedulers.io());
@@ -70,18 +112,25 @@ public class PupilRepository implements IPupilRepository {
 
     @Override
     public Single<PupilList> getOrFetchPupils() {
-        return pupilDao.getPupils()
-                .flatMap(localPupils -> {
-                    if (!localPupils.isEmpty()) {
-                        return Single.just(new PupilList(localPupils));
-                    } else {
-                        return pupilService.getAllPupils(1, requestId(), userAgent())
-                                .flatMap(remotePupils -> {
-                                    for (Pupil p : remotePupils) p.isSynced = true;
-                                    pupilDao.insertAll(remotePupils);
-                                    return Single.just(new PupilList(remotePupils));
-                                });
-                    }
+        return pupilService.getAllPupils(1, requestId(), userAgent())
+                .flatMap(response -> {
+                    return Completable.fromAction(() -> {
+                        List<Pupil> remotePupils = response.getItems();
+                        if (remotePupils != null) {
+                            for (Pupil p : remotePupils) {
+                                p.setSynced(true);
+                            }
+                            pupilDao.insertAll(remotePupils);
+                        }
+                    }).andThen(
+
+                            pupilDao.getPupils().map(PupilList::new)
+                    );
+                })
+                .onErrorResumeNext(throwable -> {
+                    // If network fails, return local pupils
+                    return pupilDao.getPupils()
+                            .map(PupilList::new);
                 })
                 .subscribeOn(Schedulers.io());
     }
@@ -89,15 +138,24 @@ public class PupilRepository implements IPupilRepository {
     @Override
     public Completable addPupil(Pupil pupil) {
         pupil.setSynced(false);
-        // Create RxJava wrapper since DAO insert() now returns void
-        return Completable.fromAction(() -> pupilDao.insert(pupil))
+        return Completable.fromAction(() -> pupilDao.insertPupil(pupil))
                 .subscribeOn(Schedulers.io());
     }
 
     @Override
     public Completable deletePupil(Pupil pupil) {
-        // Create RxJava wrapper since DAO delete() now returns void
-        return Completable.fromAction(() -> pupilDao.delete(pupil))
+        // Delete from server first, then from local database
+        return pupilService.deletePupil(pupil.getPupilId(), requestId(), userAgent())
+                .andThen(Completable.fromAction(() -> pupilDao.deletePupil(pupil)))
+                .onErrorResumeNext(throwable -> {
+                    // still delete locally if server delete fails
+                    return Completable.fromAction(() -> pupilDao.deletePupil(pupil));
+                })
                 .subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public Single<Integer> getUnsyncedPupilsCount() {
+        return pupilDao.getUnsyncedPupilCount();
     }
 }

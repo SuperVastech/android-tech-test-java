@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bridge.androidtechnicaltest.App;
 import com.bridge.androidtechnicaltest.R;
@@ -30,12 +31,18 @@ public class MainActivity extends AppCompatActivity {
     PupilDao pupilDao;
     @Inject
     PupilService pupilService;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    private PupilViewModel pupilViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((App) getApplication()).getApplicationComponent().inject(this);
         setContentView(R.layout.activity_main);
+
+        pupilViewModel = new ViewModelProvider(this, viewModelFactory).get(PupilViewModel.class);
 
         if (savedInstanceState == null) {
             FragmentManager fm = getSupportFragmentManager();
@@ -45,20 +52,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
 
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_reset) {
-            resetApiData();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+
+
+    private void addPupil() {
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .replace(R.id.container, new AddPupilFragment())
+                .addToBackStack(null)
+                .commit();
     }
 
     private void resetApiData() {

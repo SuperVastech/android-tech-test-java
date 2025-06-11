@@ -8,9 +8,11 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -51,18 +53,27 @@ public class AddPupilFragment extends Fragment {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
     private FusedLocationProviderClient fusedLocationClient;
+
+
     private double latitude = 0.0;
     private double longitude = 0.0;
     private static final int IMAGE_PICK_REQUEST = 101;
 
+
+
     private PupilViewModel pupilViewModel;
+
+
     private PupilViewModelFactory viewModelFactory;
 
     private TextInputEditText editTextName, editTextCountry;
     private View imageViewProfile;
     private View btnSelectImage, btnSubmit;
+    private ProgressBar progressBar;
 
     private String encodedImageBase64 = "";
+
+
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -74,7 +85,9 @@ public class AddPupilFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModelFactory = new PupilViewModelFactory(pupilRepository, iPupilRepository);
+
         pupilViewModel = new ViewModelProvider(this, viewModelFactory).get(PupilViewModel.class);
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         checkLocationPermissionAndFetch();
@@ -91,6 +104,18 @@ public class AddPupilFragment extends Fragment {
         imageViewProfile = view.findViewById(R.id.imageViewProfile);
         btnSelectImage = view.findViewById(R.id.btnSelectImage);
         btnSubmit = view.findViewById(R.id.btnSubmit);
+        progressBar = view.findViewById(R.id.progressBar);
+
+        pupilViewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            btnSubmit.setEnabled(!isLoading);
+        });
+
+        pupilViewModel.getError().observe(getViewLifecycleOwner(), error -> {
+            if (error != null && !error.isEmpty()) {
+                Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+            }
+        });
 
         btnSelectImage.setOnClickListener(v -> openImagePicker());
 
@@ -105,12 +130,14 @@ public class AddPupilFragment extends Fragment {
                 return;
             }
 
-            Pupil newPupil = new Pupil(0, name, country, encodedImageBase64, latitude, longitude);
+            Pupil newPupil = new Pupil(name, country, encodedImageBase64, latitude, longitude);
             pupilViewModel.addPupil(newPupil);
 
             Toast.makeText(requireContext(), "Pupil submitted!", Toast.LENGTH_SHORT).show();
             requireActivity().onBackPressed();
         });
+
+
 
         return view;
     }
@@ -128,9 +155,13 @@ public class AddPupilFragment extends Fragment {
             Uri imageUri = data.getData();
             try (InputStream imageStream = requireContext().getContentResolver().openInputStream(imageUri)) {
                 Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                encodedImageBase64 = encodeImageToBase64(selectedImage);
+                encodedImageBase64 = encodeImageToBase64WebP(selectedImage);
+                if (encodedImageBase64.length() > 1000) {
+                    Toast.makeText(requireContext(), "Image is too large even after compression.", Toast.LENGTH_LONG).show();
+                    encodedImageBase64 = "";
+                    return;
+                }
 
-                // Update ImageView
                 ((android.widget.ImageView) imageViewProfile).setImageBitmap(selectedImage);
             } catch (Exception e) {
                 Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
@@ -159,6 +190,8 @@ public class AddPupilFragment extends Fragment {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
+
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(requireActivity(), new OnSuccessListener<Location>() {
                     @Override
@@ -167,9 +200,9 @@ public class AddPupilFragment extends Fragment {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
                         } else {
-                            // fallback or keep default
-                            latitude = 6.5244;  // Lagos lat
-                            longitude = 3.3792; // Lagos lng
+                            // fallback or keep default for continuity
+                            latitude = 6.5244;  // Lagos nigeria lat
+                            longitude = 3.3792; // Lagos nigeria lng
                         }
                     }
                 });
@@ -188,10 +221,56 @@ public class AddPupilFragment extends Fragment {
             }
         }
     }
-    private String encodeImageToBase64(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
-        byte[] byteArray = baos.toByteArray();
-        return android.util.Base64.encodeToString(byteArray, android.util.Base64.NO_WRAP);
+
+
+    private Bitmap getOptimallyScaledBitmap(Bitmap original, int targetSize) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+
+        float scale = Math.min((float) targetSize / width, (float) targetSize / height);
+
+        int newWidth = Math.round(width * scale);
+        int newHeight = Math.round(height * scale);
+
+        //  Avoid overly tiny images
+        newWidth = Math.max(newWidth, 8);
+        newHeight = Math.max(newHeight, 8);
+
+        return Bitmap.createScaledBitmap(original, newWidth, newHeight, true);
     }
+
+    private String encodeImageToBase64WebP(Bitmap bitmap) {
+        int targetSize = 40;
+        Bitmap scaledBitmap = getOptimallyScaledBitmap(bitmap, targetSize);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        String base64String;
+
+        do {
+            baos.reset();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                scaledBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 60, baos);
+            } else {
+                scaledBitmap.compress(Bitmap.CompressFormat.WEBP, 60, baos);
+            }
+
+            byte[] byteArray = baos.toByteArray();
+            base64String = android.util.Base64.encodeToString(byteArray, android.util.Base64.NO_WRAP);
+
+            if (base64String.length() > 1000 && targetSize > 16) {
+                targetSize -= 4;
+                scaledBitmap.recycle();
+                scaledBitmap = getOptimallyScaledBitmap(bitmap, targetSize);
+            }
+
+        } while (base64String.length() > 1000 && targetSize > 16);
+
+        if (scaledBitmap != bitmap) {
+            scaledBitmap.recycle();
+        }
+
+        Log.d("ImageBase64Length", "WebP Final length: " + base64String.length());
+        return base64String;
+    }
+
 }
